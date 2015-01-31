@@ -91,6 +91,9 @@ public class HttpDownAnalysis implements Runnable {
         @Override
         public DownloadInfo[] partTask(DownloadFile dFile, int length) {
             int s = length / SEGM_REFERENCE+1;
+            if(s == 1){
+                return new DownloadInfo[]{new DownloadInfo(dFile,0,DownloadInfo.RANGE_NONE)};
+            }
             if(s > MAX_SEGM_TASK){
                 s=MAX_SEGM_TASK;
             }

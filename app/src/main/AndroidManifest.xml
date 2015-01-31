@@ -23,6 +23,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <service android:name=".core.DownLoadServices">
+            <intent-filter>
+                <action android:name="com.github.android.downloader.DOWNLOADSERVICES" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

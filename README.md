@@ -1,2 +1,4 @@
-# libdownloadmanager
-simple and efficient android download manager
+# Android DownloadManager
+Simple and Efficient Android download manager.
+Support multithread download, Resume broken downloads.
+

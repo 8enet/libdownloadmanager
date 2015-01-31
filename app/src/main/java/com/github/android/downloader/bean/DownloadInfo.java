@@ -78,8 +78,7 @@ public class DownloadInfo {
     
     
     public long getCurrentByte(){
-
-        return startByte+realByte;
-        
+        long c=startByte+realByte;
+        return c>0?c:0;
     }
 }

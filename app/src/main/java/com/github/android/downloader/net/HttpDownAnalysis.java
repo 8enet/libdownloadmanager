@@ -23,7 +23,7 @@ public class HttpDownAnalysis implements Runnable {
     
     private DownloadFile dFile;
 
-    private static final int SEGM_REFERENCE = 1024 * 1024 * 2; //2M
+    private static final int SEGM_REFERENCE = 1024 * 1024 * 3; //3M
     private static final int MAX_SEGM_TASK = 3;
 
     public HttpDownAnalysis(DownloadFile dFile,OnDownloadAnalysis mAnalysis) {
@@ -90,25 +90,17 @@ public class HttpDownAnalysis implements Runnable {
 
         @Override
         public DownloadInfo[] partTask(DownloadFile dFile, int length) {
-            DownloadInfo[] infos = null;
-            int f = length / MAX_SEGM_TASK;
-            if (f > SEGM_REFERENCE * 2) {
-                infos = new DownloadInfo[MAX_SEGM_TASK];
-                infos[0] = new DownloadInfo(dFile, 0, f);
-                int c2 = f * 2;
-                infos[1] = new DownloadInfo(dFile, f + 1, c2);
-                infos[2] = new DownloadInfo(dFile, c2 + 1, DownloadInfo.RANGE_NONE);
-            } else {
-                if (f < SEGM_REFERENCE) {
-                    infos = new DownloadInfo[1];
-                    infos[0] = new DownloadInfo(dFile, 0, DownloadInfo.RANGE_NONE);
-                } else {
-                    infos = new DownloadInfo[2];
-                    int c = length / 2;
-                    infos[0] = new DownloadInfo(dFile, 0, c);
-                    infos[0] = new DownloadInfo(dFile, c + 1, DownloadInfo.RANGE_NONE);
-                }
+            int s = length / SEGM_REFERENCE+1;
+            if(s > MAX_SEGM_TASK){
+                s=MAX_SEGM_TASK;
             }
+            int p=length/s;
+            DownloadInfo[] infos = new DownloadInfo[s];
+            infos[0]=new DownloadInfo(dFile,DownloadInfo.RANGE_NONE,p);
+            for(int i=1;i<s-1;i++){
+                infos[i]=new DownloadInfo(dFile,(p*i+i),(p*(i+1)+i));
+            }
+            infos[s-1]=new DownloadInfo(dFile,(p*(s-1)+(s-1)),DownloadInfo.RANGE_NONE);
             return infos;
         }
     }

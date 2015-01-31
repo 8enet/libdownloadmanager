@@ -19,14 +19,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DownLoadControllerAsync {
 
     private static final String TAG="DownLoadControllerAsync";
-    
-    private static final int MSG_DOWNLOADING = 2;
 
     public DownLoadControllerAsync(DownloadFile dFile, DownloadListener listener) {
         this.dFile = dFile;
         this.listener = listener;
-
-
     }
 
     private CountDownLatch countDownLatch;
@@ -39,31 +35,12 @@ public class DownLoadControllerAsync {
     private CountDownLatch statisSuccess;
     private SoftReference<MyHandler> handler;
 
-    private int count = 0;
 
     public void setCount(int c) {
-        this.count = c;
         this.countDownLatch = new CountDownLatch(c);
-        statisSuccess = new CountDownLatch(c);
-
+        this.statisSuccess = new CountDownLatch(c);
     }
 
-    public void start() {
-        try {
-            countDownLatch.wait();
-            getHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    if (listener != null) {
-                        listener.onFinsh(null);
-                    }
-                }
-            });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     private Handler getHandler() {
         MyHandler h = null;
@@ -158,10 +135,8 @@ public class DownLoadControllerAsync {
                                 listener.onSuccess(downloadInfo);
                             }
                             listener.onFinsh(downloadInfo);
-
                         }
                     });
-
                 }
             }
         };

@@ -68,6 +68,7 @@ public class MainActivity extends Activity implements OnClickListener{
                     }else {
                         progressBar.setProgress(p);
                     }
+
                 }
 
                 @Override

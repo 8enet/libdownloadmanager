@@ -67,8 +67,6 @@ public class DownLoadManager {
                         listeners[i]=async.creatHttpTaskListener();
                         threadPoolExecutor.submit(new HttpDownloadTask(infos[i],listeners[i]));
                     }
-
-
                 }
             }
         }));

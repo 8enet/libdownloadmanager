@@ -3,6 +3,7 @@ package com.github.android.downloader.core;
 import com.github.android.downloader.bean.DownloadInfo;
 
 /**
+ * this callback invok in ui thread !!!
  * Created by zl on 2015/1/31.
  */
 public interface DownloadListener {

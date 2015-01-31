@@ -99,7 +99,7 @@ public class HttpDownAnalysis implements Runnable {
             }
             int p=length/s;
             DownloadInfo[] infos = new DownloadInfo[s];
-            infos[0]=new DownloadInfo(dFile,DownloadInfo.RANGE_NONE,p);
+            infos[0]=new DownloadInfo(dFile,0,p);
             for(int i=1;i<s-1;i++){
                 infos[i]=new DownloadInfo(dFile,(p*i+i),(p*(i+1)+i));
             }

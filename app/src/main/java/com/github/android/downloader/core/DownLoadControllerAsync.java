@@ -2,7 +2,8 @@ package com.github.android.downloader.core;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+import android.os.RemoteException;
+
 
 import com.github.android.downloader.bean.DownloadFile;
 import com.github.android.downloader.bean.DownloadInfo;
@@ -20,14 +21,14 @@ public class DownLoadControllerAsync {
 
     private static final String TAG="DownLoadControllerAsync";
 
-    public DownLoadControllerAsync(DownloadFile dFile, DownloadListener listener) {
+    public DownLoadControllerAsync(DownloadFile dFile, IDownloadListener listener) {
         this.dFile = dFile;
         this.listener = listener;
     }
 
     private CountDownLatch countDownLatch;
     private DownloadFile dFile;
-    private DownloadListener listener;
+    private IDownloadListener listener;
 
 
     private AtomicLong current = new AtomicLong();
@@ -83,7 +84,11 @@ public class DownLoadControllerAsync {
                         getHandler().post(new Runnable() {
                             @Override
                             public void run() {
-                                listener.onStart();
+                                try {
+                                    listener.onStart();
+                                } catch (RemoteException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                 }
@@ -103,7 +108,11 @@ public class DownLoadControllerAsync {
                             @Override
                             public void run() {
                                 long c=current.get();
-                                listener.onDownloading(dFile.fileSize, c, 0, ((float)c)/((float) dFile.fileSize));
+                                try {
+                                    listener.onDownloading(dFile.fileSize, c, 0, ((float)c)/((float) dFile.fileSize));
+                                } catch (RemoteException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                 }
@@ -132,11 +141,23 @@ public class DownLoadControllerAsync {
                         @Override
                         public void run() {
                             if (statisSuccess.getCount() == 0) {
-                                listener.onSuccess(downloadInfo);
+                                try {
+                                    listener.onSuccess(downloadInfo);
+                                } catch (RemoteException e) {
+                                    e.printStackTrace();
+                                }
                             }else {
-                                listener.onFail();
+                                try {
+                                    listener.onFail();
+                                } catch (RemoteException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                            listener.onFinsh(downloadInfo);
+                            try {
+                                listener.onFinsh(downloadInfo);
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
                 }

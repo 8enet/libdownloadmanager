@@ -26,7 +26,7 @@
         
         <service android:name=".core.DownLoadServices">
             <intent-filter>
-                <action android:name="com.github.android.downloader.DOWNLOADSERVICES" />
+                <action android:name="com.github.android.downloader.DOWNLOAD_SERVICES" />
             </intent-filter>
         </service>
     </application>

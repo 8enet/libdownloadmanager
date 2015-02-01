@@ -103,15 +103,7 @@ public class DownloadInfo implements Parcelable {
     }
 
     private DownloadInfo(Parcel in) {
-        this.downloadFile = in.readParcelable(DownloadFile.class.getClassLoader());
-        this.startByte = in.readLong();
-        this.endByte = in.readLong();
-        this.realByte = in.readLong();
-        this.addByte = in.readInt();
-        this.status = in.readInt();
-        this.running = in.readByte() != 0;
-        this.tag = in.readParcelable(Object.class.getClassLoader());
-        this.retry = in.readInt();
+        readFromParcel(in);
     }
 
     public static final Parcelable.Creator<DownloadInfo> CREATOR = new Parcelable.Creator<DownloadInfo>() {
@@ -123,4 +115,17 @@ public class DownloadInfo implements Parcelable {
             return new DownloadInfo[size];
         }
     };
+    
+    public void readFromParcel(Parcel in){
+
+        this.downloadFile = in.readParcelable(DownloadFile.class.getClassLoader());
+        this.startByte = in.readLong();
+        this.endByte = in.readLong();
+        this.realByte = in.readLong();
+        this.addByte = in.readInt();
+        this.status = in.readInt();
+        this.running = in.readByte() != 0;
+        this.tag = in.readParcelable(Object.class.getClassLoader());
+        this.retry = in.readInt();
+    }
 }

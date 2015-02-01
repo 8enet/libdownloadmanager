@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.github.android.downloader.bean.DownloadFile;
+import com.github.android.downloader.bean.DownloadInfo;
 
 /**
  * Created by zl on 2015/1/31.
@@ -18,6 +19,7 @@ public class DownLoadServices extends Service {
     public void onCreate() {
         super.onCreate();
         mDownLoadManager=new DownLoadManager(this);
+
     }
 
     @Override
@@ -26,10 +28,11 @@ public class DownLoadServices extends Service {
     }
     
     private IDownLoadServices.Stub mService=new IDownLoadServices.Stub() {
+
         @Override
-        public void addDownLoadTask(DownloadFile dFile) throws RemoteException {
+        public void addDownLoadTask(DownloadFile dFile, IDownloadListener listener) throws RemoteException {
             if(mDownLoadManager != null){
-                //mDownLoadManager.addDownLoadTask();
+                mDownLoadManager.addDownLoadTask(dFile,listener);
             }
         }
     };

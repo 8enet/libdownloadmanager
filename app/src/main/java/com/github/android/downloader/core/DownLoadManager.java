@@ -41,7 +41,7 @@ public class DownLoadManager {
     }
 
 
-    public void addDownLoadTask(final DownloadFile dFile,final DownloadListener listener){
+    public void addDownLoadTask(final DownloadFile dFile,final IDownloadListener listener){
         
         threadPoolExecutor.submit(new HttpDownAnalysis(dFile,new HttpDownAnalysis.OnDownloadAnalysis() {
             @Override

@@ -13,7 +13,7 @@ import com.github.android.downloader.bean.DownloadFile;
 import com.github.android.downloader.bean.DownloadInfo;
 import com.github.android.downloader.core.DownLoadManager;
 import com.github.android.downloader.core.DownloadListener;
-import com.github.android.downloader.net.RequestParams;
+import com.github.android.downloader.bean.RequestParams;
 
 import java.io.File;
 
@@ -39,7 +39,7 @@ public class MainActivity extends Activity implements OnClickListener{
     }
 
 
-    
+    long st;
     private void download(){
 
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
@@ -55,8 +55,10 @@ public class MainActivity extends Activity implements OnClickListener{
             DownLoadManager.getInstance().addDownLoadTask(dFile,new DownloadListener() {
                 @Override
                 public void onStart() {
+                    st=System.currentTimeMillis();
                     Log.d(TAG,"  onStart  -->>> ");
                     showToast("onStart");
+                    
                 }
 
                 @Override
@@ -77,6 +79,11 @@ public class MainActivity extends Activity implements OnClickListener{
                 }
 
                 @Override
+                public void onFail() {
+
+                }
+
+                @Override
                 public void onCancel(DownloadInfo dInfo) {
 
                 }
@@ -84,8 +91,9 @@ public class MainActivity extends Activity implements OnClickListener{
                 @Override
                 public void onFinsh(DownloadInfo dInfo) {
 
-                    Log.d(TAG,"onFinsh  -->    ");
-                    showToast("  onFinsh  -->   ");
+                    long time=System.currentTimeMillis()-st;
+                    Log.d(TAG,"onFinsh  -->    "+time);
+                    showToast("  onFinsh  -->   "+time);
                 }
             });  
         }

@@ -3,13 +3,34 @@ package com.github.android.downloader.core;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteException;
+
+import com.github.android.downloader.bean.DownloadFile;
 
 /**
  * Created by zl on 2015/1/31.
  */
 public class DownLoadServices extends Service {
+
+    private DownLoadManager mDownLoadManager;
+    
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mDownLoadManager=new DownLoadManager(this);
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mService.asBinder();
     }
+    
+    private IDownLoadServices.Stub mService=new IDownLoadServices.Stub() {
+        @Override
+        public void addDownLoadTask(DownloadFile dFile) throws RemoteException {
+            if(mDownLoadManager != null){
+                //mDownLoadManager.addDownLoadTask();
+            }
+        }
+    };
 }

@@ -1,4 +1,9 @@
-package com.github.android.downloader.net;
+package com.github.android.downloader.bean;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.github.android.downloader.net.HttpHeaders;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +11,7 @@ import java.util.Map;
 /**
  * Created by zl on 2015/1/31.
  */
-public class RequestParams {
+public class RequestParams implements Parcelable {
     private Map<String,String> params;
 
     public RequestParams(Map<String,String> params){
@@ -62,4 +67,28 @@ public class RequestParams {
         params.setAcceptEncoding("gzip, deflate, sdch");
         return params;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeMap(this.params);
+    }
+
+    private RequestParams(Parcel in) {
+        this.params = in.readHashMap(HashMap.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<RequestParams> CREATOR = new Parcelable.Creator<RequestParams>() {
+        public RequestParams createFromParcel(Parcel source) {
+            return new RequestParams(source);
+        }
+
+        public RequestParams[] newArray(int size) {
+            return new RequestParams[size];
+        }
+    };
 }

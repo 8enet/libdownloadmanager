@@ -3,8 +3,6 @@ package com.github.android.downloader.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.github.android.downloader.net.RequestParams;
-
 
 public class DownloadFile implements Parcelable {
     public String downUrl;
@@ -14,6 +12,9 @@ public class DownloadFile implements Parcelable {
     public long currentSize;
     public int status;
     public RequestParams requestParams;
+
+    public DownloadFile() {
+    }
 
     @Override
     public int describeContents() {
@@ -28,21 +29,14 @@ public class DownloadFile implements Parcelable {
         dest.writeLong(this.fileSize);
         dest.writeLong(this.currentSize);
         dest.writeInt(this.status);
-    }
-
-    public DownloadFile() {
+        dest.writeParcelable(this.requestParams, 0);
     }
 
     private DownloadFile(Parcel in) {
-        this.downUrl = in.readString();
-        this.savePath = in.readString();
-        this.fileName = in.readString();
-        this.fileSize = in.readLong();
-        this.currentSize = in.readLong();
-        this.status = in.readInt();
+        readFromParcel(in);
     }
 
-    public static final Parcelable.Creator<DownloadFile> CREATOR = new Parcelable.Creator<DownloadFile>() {
+    public static final Creator<DownloadFile> CREATOR = new Creator<DownloadFile>() {
         public DownloadFile createFromParcel(Parcel source) {
             return new DownloadFile(source);
         }
@@ -51,4 +45,15 @@ public class DownloadFile implements Parcelable {
             return new DownloadFile[size];
         }
     };
+    
+    
+    public void readFromParcel(Parcel in){
+        this.downUrl = in.readString();
+        this.savePath = in.readString();
+        this.fileName = in.readString();
+        this.fileSize = in.readLong();
+        this.currentSize = in.readLong();
+        this.status = in.readInt();
+        this.requestParams = in.readParcelable(RequestParams.class.getClassLoader());
+    }
 }

@@ -11,6 +11,8 @@ public interface DownloadListener {
     
     void onDownloading(long total,long curr,float speed,float perc);
     
+    void onFail();
+    
     void onSuccess(DownloadInfo dInfo);
     
     void onCancel(DownloadInfo dInfo);

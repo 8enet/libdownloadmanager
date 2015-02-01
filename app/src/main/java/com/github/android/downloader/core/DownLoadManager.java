@@ -1,7 +1,6 @@
 package com.github.android.downloader.core;
 
-import android.os.Handler;
-import android.os.Looper;
+import android.content.Context;
 import android.util.Log;
 
 import com.github.android.downloader.bean.DownloadFile;
@@ -21,20 +20,24 @@ import java.util.concurrent.TimeUnit;
 public class DownLoadManager {
     private static final String TAG="DownLoadManager";
     
-    private volatile static DownLoadManager downLoadControllerAsync;
-
-    public static DownLoadManager getInstance(){
-        if(downLoadControllerAsync == null){
-            synchronized (DownLoadControllerAsync.class){
-                downLoadControllerAsync=new DownLoadManager();
-            }
-        }
-        return downLoadControllerAsync;
-    }
+//    private volatile static DownLoadManager downLoadControllerAsync;
+//
+//    public static DownLoadManager getInstance(){
+//        if(downLoadControllerAsync == null){
+//            synchronized (DownLoadControllerAsync.class){
+//                downLoadControllerAsync=new DownLoadManager();
+//            }
+//        }
+//        return downLoadControllerAsync;
+//    }
 
     private ThreadPoolExecutor threadPoolExecutor;
-    private DownLoadManager(){
+    private Context mContext;
+    
+    public DownLoadManager(Context mContext){
+        this.mContext=mContext;
         threadPoolExecutor=new ThreadPoolExecutor(5,10,5, TimeUnit.MINUTES,new LinkedBlockingQueue<Runnable>());
+
     }
 
 
@@ -72,6 +75,6 @@ public class DownLoadManager {
         }));
     }
 
-   
+    
     
 }

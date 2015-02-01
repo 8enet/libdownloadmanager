@@ -133,6 +133,8 @@ public class DownLoadControllerAsync {
                         public void run() {
                             if (statisSuccess.getCount() == 0) {
                                 listener.onSuccess(downloadInfo);
+                            }else {
+                                listener.onFail();
                             }
                             listener.onFinsh(downloadInfo);
                         }

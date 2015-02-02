@@ -116,24 +116,20 @@ public class DownLoadControllerAsync {
             public void onDownloading(final DownloadInfo downloadInfo) {
                 if (downloadInfo != null) {
 
-                    if(measureDownSpeed){
-                        trafficSpeed.getSpeed(current.addAndGet(downloadInfo.addByte));
+                    double tsp=0;
+                    if(measureDownSpeed && trafficSpeed!= null){
+                        tsp=trafficSpeed.getSpeed(current.addAndGet(downloadInfo.addByte));
                     }else {
                         current.addAndGet(downloadInfo.addByte);
                     }
-                    
+                    final double sp=tsp;
                     if (listener != null && downloadInfo != null)
                         getHandler().post(new Runnable() {
                             @Override
                             public void run() {
                                 long c=current.get();
                                 try {
-
-                                    double n=0;
-                                    if(measureDownSpeed && trafficSpeed != null){
-                                        n=trafficSpeed.getSpeed();
-                                    }
-                                    listener.onDownloading(dFile.fileSize, c, (float)n, ((float)c)/((float) dFile.fileSize));
+                                    listener.onDownloading(dFile.fileSize, c, (float)sp, ((float)c)/((float) dFile.fileSize));
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
                                 }

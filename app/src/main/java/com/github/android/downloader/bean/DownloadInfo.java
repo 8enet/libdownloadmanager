@@ -36,6 +36,7 @@ public class DownloadInfo implements Parcelable {
     
     public int addByte;
 
+    public String tempFile;
 
     public int status;
 

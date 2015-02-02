@@ -8,11 +8,13 @@ import android.os.RemoteException;
 import com.github.android.downloader.bean.DownloadFile;
 import com.github.android.downloader.bean.DownloadInfo;
 import com.github.android.downloader.net.HttpTaskListener;
+import com.github.android.downloader.utils.TrafficSpeed;
 
 import java.lang.ref.SoftReference;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by zl on 2015/1/31.
@@ -35,11 +37,22 @@ public class DownLoadControllerAsync {
     private AtomicBoolean statisStart = new AtomicBoolean(true);
     private CountDownLatch statisSuccess;
     private SoftReference<MyHandler> handler;
+    
+    private volatile TrafficSpeed  trafficSpeed;
 
+    private volatile boolean measureDownSpeed=false;
 
     public void setCount(int c) {
         this.countDownLatch = new CountDownLatch(c);
         this.statisSuccess = new CountDownLatch(c);
+    }
+    
+    public void measureSpeed(boolean m){
+        this.measureDownSpeed=m;
+        if(measureDownSpeed){
+            trafficSpeed=new TrafficSpeed();
+        }
+        
     }
 
 
@@ -102,14 +115,25 @@ public class DownLoadControllerAsync {
             @Override
             public void onDownloading(final DownloadInfo downloadInfo) {
                 if (downloadInfo != null) {
-                    current.addAndGet(downloadInfo.addByte);
+
+                    if(measureDownSpeed){
+                        trafficSpeed.getSpeed(current.addAndGet(downloadInfo.addByte));
+                    }else {
+                        current.addAndGet(downloadInfo.addByte);
+                    }
+                    
                     if (listener != null && downloadInfo != null)
                         getHandler().post(new Runnable() {
                             @Override
                             public void run() {
                                 long c=current.get();
                                 try {
-                                    listener.onDownloading(dFile.fileSize, c, 0, ((float)c)/((float) dFile.fileSize));
+
+                                    double n=0;
+                                    if(measureDownSpeed && trafficSpeed != null){
+                                        n=trafficSpeed.getSpeed();
+                                    }
+                                    listener.onDownloading(dFile.fileSize, c, (float)n, ((float)c)/((float) dFile.fileSize));
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
                                 }

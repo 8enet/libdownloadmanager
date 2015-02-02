@@ -19,17 +19,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class DownLoadManager {
     private static final String TAG="DownLoadManager";
-    
-//    private volatile static DownLoadManager downLoadControllerAsync;
-//
-//    public static DownLoadManager getInstance(){
-//        if(downLoadControllerAsync == null){
-//            synchronized (DownLoadControllerAsync.class){
-//                downLoadControllerAsync=new DownLoadManager();
-//            }
-//        }
-//        return downLoadControllerAsync;
-//    }
 
     private ThreadPoolExecutor threadPoolExecutor;
     private Context mContext;
@@ -65,6 +54,7 @@ public class DownLoadManager {
                     
                     DownLoadControllerAsync async=new DownLoadControllerAsync(dFile,listener);
                     async.setCount(sz);
+                    async.measureSpeed(true);
                     HttpTaskListener[] listeners=new HttpTaskListener[sz];
                     for(int i=0;i<sz;i++){
                         listeners[i]=async.creatHttpTaskListener();

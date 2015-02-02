@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -123,7 +124,6 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
     private void saveFile(InputStream inputStream) throws Exception {
         RandomAccessFile raf =null;
         try{
-
             raf = new RandomAccessFile(dInfo.downloadFile.savePath, "rw");
             Log.d(TAG,"save file seek -->> "+dInfo.getCurrentByte());
             raf.seek(dInfo.getCurrentByte());

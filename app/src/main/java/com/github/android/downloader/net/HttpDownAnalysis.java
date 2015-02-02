@@ -73,8 +73,7 @@ public class HttpDownAnalysis implements Runnable {
                 if(mAnalysis != null){
                     mAnalysis.onComplete(mFilePartAction.partTask(dFile,length));
                 }
-                
-                //return mFilePartAction.partTask(dFile, length);
+
             }
             
         }catch (Exception e){

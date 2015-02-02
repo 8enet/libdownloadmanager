@@ -13,15 +13,16 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.android.downloader.bean.DownloadFile;
 import com.github.android.downloader.bean.DownloadInfo;
-import com.github.android.downloader.core.DownLoadManager;
+import com.github.android.downloader.bean.RequestParams;
 import com.github.android.downloader.core.DownLoadServices;
 import com.github.android.downloader.core.IDownLoadServices;
-import com.github.android.downloader.core.IDownloadListener;
-import com.github.android.downloader.bean.RequestParams;
+import com.github.android.downloader.core.SimpleDownloadListener;
+import com.github.android.downloader.io.FileCoalition;
 
 import java.io.File;
 
@@ -33,6 +34,7 @@ public class MainActivity extends Activity implements OnClickListener{
     private static final String TAG="MainActivity";
     
     private ProgressBar progressBar;
+    private TextView tvSpeed;
     
     private IDownLoadServices mService;
     
@@ -42,14 +44,20 @@ public class MainActivity extends Activity implements OnClickListener{
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_start).setOnClickListener(this);
         findViewById(R.id.btn_stop).setOnClickListener(this);
+        
         Intent intent=new Intent(this, DownLoadServices.class);
         bindService(intent,connection, Context.BIND_AUTO_CREATE);
         
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
+        tvSpeed= (TextView) findViewById(R.id.tv_down_speed);
         progressBar.setMax(100);
         progressBar.setProgress(0);
-        
+
     }
+    
+    
+
+    
     
     private ServiceConnection connection=new ServiceConnection() {
         @Override
@@ -75,52 +83,40 @@ public class MainActivity extends Activity implements OnClickListener{
             
             dFile.requestParams= RequestParams.buildTestParams();
             Log.d(TAG," dFile.savePath -->  "+ dFile.savePath);
-
+            
 
             try {
-                mService.addDownLoadTask(dFile,new IDownloadListener() {
+                mService.addDownLoadTask(dFile,new SimpleDownloadListener(){
+
                     @Override
                     public void onStart() throws RemoteException {
+                        super.onStart();
                         st=System.currentTimeMillis();
                         Log.d(TAG,"  onStart  -->>> ");
                         showToast("onStart");
                     }
-    
+
+
                     @Override
                     public void onDownloading(long total, long curr, float speed, float perc) throws RemoteException {
+                        super.onDownloading(total, curr, speed, perc);
                         int p= (int) (perc*100f);
                         if(p> 100){
                             progressBar.setProgress(100);
                         }else {
                             progressBar.setProgress(p);
                         }
+                        tvSpeed.setText(((int)speed)+"kb/s");
                     }
-    
-                    @Override
-                    public void onFail() throws RemoteException {
-    
-                    }
-    
-                    @Override
-                    public void onSuccess(DownloadInfo dInfo) throws RemoteException {
-    
-                    }
-    
-                    @Override
-                    public void onCancel(DownloadInfo dInfo) throws RemoteException {
-    
-                    }
-    
+
+
                     @Override
                     public void onFinsh(DownloadInfo dInfo) throws RemoteException {
+                        super.onFinsh(dInfo);
+
                         long time=System.currentTimeMillis()-st;
                         Log.d(TAG,"onFinsh  -->    "+time);
                         showToast("  onFinsh  -->   "+time);
-                    }
-    
-                    @Override
-                    public IBinder asBinder() {
-                        return null;
                     }
                 });
             } catch (Exception e) {
@@ -137,8 +133,37 @@ public class MainActivity extends Activity implements OnClickListener{
                 download();
                 break;
             case R.id.btn_stop:
+                copyTest();
                 break;
         }
+    }
+    
+    
+    
+    private void copyTest(){
+
+        try {
+            String s=Environment.getExternalStorageDirectory()+ File.separator+"down/";
+            File file=new File(s+"aaa");
+            File f1=new File(s+"baidushoujiweishi_1712_0.apk");
+            File f2=new File(s+"baidushoujiweishi_1712_1.apk");
+            File f3=new File(s+"baidushoujiweishi_1712_2.apk");
+            File f4=new File(s+"baidushoujiweishi_1712_3.apk");
+            long st=System.currentTimeMillis();
+            FileCoalition fc=new FileCoalition(file,f1,f2,f3,f4);
+            fc.merge();
+            long e=System.currentTimeMillis()-st;
+            Log.d(TAG,"   time 1"+e);
+
+            st=System.currentTimeMillis();
+            fc.merge2();
+            e=System.currentTimeMillis()-st;
+            Log.d(TAG,"   time 2"+e);
+            
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     
@@ -146,5 +171,11 @@ public class MainActivity extends Activity implements OnClickListener{
         Toast.makeText(this,s,Toast.LENGTH_LONG).show();
         
     }
-   
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(connection);
+    }
 }

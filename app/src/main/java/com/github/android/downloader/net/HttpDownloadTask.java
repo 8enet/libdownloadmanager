@@ -4,14 +4,12 @@ package com.github.android.downloader.net;
 import android.util.Log;
 
 import com.github.android.downloader.bean.DownloadInfo;
+import com.github.android.downloader.io.FileUtils;
 
-
-import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -79,6 +77,7 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
                         saveFile(inputStream);
                     } else {
                         if (taskListener != null) {
+                            retry=false;
                             taskListener.onInterruption(dInfo, true);
                         }
                     }
@@ -96,9 +95,7 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
                     taskListener.onRetry(dInfo.retry, dInfo.realByte);
                 }
             } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
+                FileUtils.closeQuietly(inputStream);
                 if (connection != null) {
                     connection.disconnect();
                 }
@@ -129,20 +126,27 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
             raf.seek(dInfo.getCurrentByte());
             byte buff[] = new byte[BUFF_SIZE];
             int len = -1;
-            while (dInfo.isRunning() && (len = inputStream.read(buff, 0, BUFF_SIZE)) != -1) {
+            boolean r=dInfo.isRunning();
+
+            while (r && (len = inputStream.read(buff, 0, BUFF_SIZE)) != -1) {
                 raf.write(buff,0,len);
                 dInfo.realByte+=len;
                 dInfo.addByte=len;
+                r=dInfo.isRunning();
                 if(taskListener != null){
                     taskListener.onDownloading(dInfo);
+                }
+            }
+            if(!r){
+                if(taskListener != null){
+                    dInfo.retry=0;
+                    taskListener.onInterruption(dInfo,true);
                 }
             }
         }catch (Exception e){
             throw e;
         }finally {
-            if(raf != null){
-                raf.close();
-            }
+            FileUtils.closeQuietly(raf);
         }  
     }
 
@@ -150,13 +154,11 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
     private StringBuilder planRange() {
         StringBuilder rangs = new StringBuilder("bytes=");
 
-        if (dInfo.realByte != 0) {
-            rangs.append(dInfo.realByte);
-        } else {
-            if (dInfo.startByte != DownloadInfo.RANGE_NONE) {
-                rangs.append(dInfo.startByte);
-            }
+
+        if (dInfo.startByte != DownloadInfo.RANGE_NONE) {
+           rangs.append(dInfo.startByte);
         }
+
         rangs.append('-');
         if (dInfo.endByte != DownloadInfo.RANGE_NONE) {
             rangs.append(dInfo.endByte);

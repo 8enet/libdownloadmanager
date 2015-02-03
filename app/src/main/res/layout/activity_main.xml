@@ -21,6 +21,14 @@
         android:layout_marginLeft="8dp"
         />
 
+    <Button
+        android:id="@+id/btn_resume"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/btn_stop"
+        android:text="resume"
+        android:layout_marginLeft="8dp"
+        />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"

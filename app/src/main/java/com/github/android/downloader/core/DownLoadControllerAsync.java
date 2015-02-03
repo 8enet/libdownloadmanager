@@ -3,6 +3,7 @@ package com.github.android.downloader.core;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.util.Log;
 
 
 import com.github.android.downloader.bean.DownloadFile;
@@ -11,6 +12,11 @@ import com.github.android.downloader.net.HttpTaskListener;
 import com.github.android.downloader.utils.TrafficSpeed;
 
 import java.lang.ref.SoftReference;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Created by zl on 2015/1/31.
  */
-public class DownLoadControllerAsync {
+public class DownLoadControllerAsync implements Cloneable{
 
     private static final String TAG="DownLoadControllerAsync";
 
@@ -28,23 +34,31 @@ public class DownLoadControllerAsync {
         this.listener = listener;
     }
 
+    public static Map<String,List<DownloadInfo>> downInfosCache=null;
+    
     private CountDownLatch countDownLatch;
     private DownloadFile dFile;
     private IDownloadListener listener;
 
-
     private AtomicLong current = new AtomicLong();
     private AtomicBoolean statisStart = new AtomicBoolean(true);
     private CountDownLatch statisSuccess;
+    private CountDownLatch clStop;
+    private List<DownloadInfo> mPauseInfos;
+    
     private SoftReference<MyHandler> handler;
+    private volatile boolean running=true;
     
     private volatile TrafficSpeed  trafficSpeed;
 
     private volatile boolean measureDownSpeed=false;
 
+    private  int sizeTask;
+    
     public void setCount(int c) {
-        this.countDownLatch = new CountDownLatch(c);
-        this.statisSuccess = new CountDownLatch(c);
+        sizeTask=c;
+        this.countDownLatch = new CountDownLatch(sizeTask);
+        this.statisSuccess = new CountDownLatch(sizeTask);
     }
     
     public void measureSpeed(boolean m){
@@ -52,9 +66,25 @@ public class DownLoadControllerAsync {
         if(measureDownSpeed){
             trafficSpeed=new TrafficSpeed();
         }
-        
+    }
+    
+    
+    public void stopDownload(){
+        running=false;
+        if(!running){
+            clStop=new CountDownLatch(sizeTask);
+        }
+        if(mPauseInfos == null){
+            mPauseInfos=new CopyOnWriteArrayList<DownloadInfo>();
+        }
     }
 
+    public void restart(){
+        running=true;
+        this.countDownLatch = new CountDownLatch(sizeTask);
+        this.statisSuccess = new CountDownLatch(sizeTask);
+
+    }
 
     private Handler getHandler() {
         MyHandler h = null;
@@ -109,12 +139,39 @@ public class DownLoadControllerAsync {
 
             @Override
             public void onInterruption(DownloadInfo downloadInfo, boolean isNormal) throws Exception {
+                if(isNormal && clStop != null){
+                    clStop.countDown();
+                    mPauseInfos.add(downloadInfo);
+                    if(clStop.getCount() == 0 && listener != null){
+                        clStop=null;
+                        if(downInfosCache == null){
+                            downInfosCache=new ConcurrentHashMap<String, List<DownloadInfo>>(5);
+                        }
 
+                        getHandler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    downInfosCache.put(dFile.downUrl,mPauseInfos);
+                                    listener.onPause(mPauseInfos);
+                                } catch (RemoteException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                }
+                
             }
 
             @Override
             public void onDownloading(final DownloadInfo downloadInfo) {
                 if (downloadInfo != null) {
+
+                    if(!running && downloadInfo.isRunning()){
+                        downloadInfo.stop();
+                        Log.d(TAG,"  onDownloading stop ... "+downloadInfo);
+                    }
 
                     double tsp=0;
                     if(measureDownSpeed && trafficSpeed!= null){
@@ -186,4 +243,13 @@ public class DownLoadControllerAsync {
 
     }
 
+    
+    public static List<DownloadInfo> getDownInfos(String url){
+        if(downInfosCache == null){
+            return null;
+        }
+        return downInfosCache.get(url);
+        
+    }
+    
 }

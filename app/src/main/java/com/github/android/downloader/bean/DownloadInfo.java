@@ -43,8 +43,8 @@ public class DownloadInfo implements Parcelable {
 
     
     private boolean running=true;
-    private Parcelable tag;
     
+    private Parcelable tag;
     
 
     public int retry=3;
@@ -67,6 +67,10 @@ public class DownloadInfo implements Parcelable {
     }
 
 
+    public void start(){
+        running=true;
+        
+    }
 
 
     public Map<String,String> getHeards(){
@@ -83,6 +87,10 @@ public class DownloadInfo implements Parcelable {
     public long getCurrentByte(){
         long c=startByte+realByte;
         return c>0?c:0;
+    }
+    
+    public void setRetry(int retry){
+        this.retry=retry;
     }
 
     @Override
@@ -128,5 +136,15 @@ public class DownloadInfo implements Parcelable {
         this.running = in.readByte() != 0;
         this.tag = in.readParcelable(Object.class.getClassLoader());
         this.retry = in.readInt();
+    }
+
+
+    @Override
+    public String toString() {
+        return "DownloadInfo{" +
+                "startByte=" + startByte +
+                ", endByte=" + endByte +
+                ", realByte=" + realByte +
+                '}';
     }
 }

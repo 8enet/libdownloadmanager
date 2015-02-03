@@ -9,6 +9,10 @@ interface IDownloadListener {
         void onDownloading(long total,long curr,float speed,float perc);
 
         void onFail();
+        
+        void onPause(out List<DownloadInfo> dInfos);
+        
+        void onResume();
 
         void onSuccess(out DownloadInfo dInfo);
 

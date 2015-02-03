@@ -25,6 +25,7 @@ import com.github.android.downloader.core.SimpleDownloadListener;
 import com.github.android.downloader.io.FileCoalition;
 
 import java.io.File;
+import java.util.List;
 
 import static android.view.View.OnClickListener;
 
@@ -44,7 +45,7 @@ public class MainActivity extends Activity implements OnClickListener{
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_start).setOnClickListener(this);
         findViewById(R.id.btn_stop).setOnClickListener(this);
-        
+        findViewById(R.id.btn_resume).setOnClickListener(this);
         Intent intent=new Intent(this, DownLoadServices.class);
         bindService(intent,connection, Context.BIND_AUTO_CREATE);
         
@@ -71,13 +72,14 @@ public class MainActivity extends Activity implements OnClickListener{
         }
     };
 
+    private String downUrl="http://gdown.baidu.com/data/wisegame/6fa8b3e535a4f361/baidushoujiweishi_1712.apk";
 
     long st;
     private void download(){
 
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
             DownloadFile dFile=new DownloadFile();
-            dFile.downUrl="http://gdown.baidu.com/data/wisegame/6fa8b3e535a4f361/baidushoujiweishi_1712.apk";
+            dFile.downUrl=downUrl;
             dFile.fileName=dFile.downUrl.substring(dFile.downUrl.lastIndexOf('/')+1);
             dFile.savePath=Environment.getExternalStorageDirectory()+ File.separator+"down/"+dFile.fileName;
             
@@ -109,6 +111,22 @@ public class MainActivity extends Activity implements OnClickListener{
                         tvSpeed.setText(((int)speed)+"kb/s");
                     }
 
+                    @Override
+                    public void onPause(List<DownloadInfo> dInfos) throws RemoteException {
+                        super.onPause(dInfos);
+                        showToast("onPause   --->>> ");
+                        Log.d(TAG,"onPause  -->    ");
+                        if(dInfos != null){
+                            for(DownloadInfo d:dInfos){
+                                //Log.d(TAG,"onPause DownloadInfo -->    "+d);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onResume() throws RemoteException {
+                        super.onResume();
+                    }
 
                     @Override
                     public void onFinsh(DownloadInfo dInfo) throws RemoteException {
@@ -133,11 +151,35 @@ public class MainActivity extends Activity implements OnClickListener{
                 download();
                 break;
             case R.id.btn_stop:
-                copyTest();
+                stopD();
+            case R.id.btn_resume:
+                resumeD();
                 break;
+                
         }
     }
     
+    
+    
+    private void stopD(){
+        try {
+            mService.stopDownLoadTask(downUrl);
+            Log.d(TAG,"stopD  -->    ");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+    }
+    
+    private void resumeD(){
+        try {
+            mService.resumeDownLoadTask(downUrl);
+            Log.d(TAG,"resumeD  -->    ");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+    }
     
     
     private void copyTest(){
@@ -168,10 +210,11 @@ public class MainActivity extends Activity implements OnClickListener{
 
     
     private void showToast(String s){
-        Toast.makeText(this,s,Toast.LENGTH_LONG).show();
+        Toast.makeText(this,s,Toast.LENGTH_SHORT).show();
         
     }
 
+   
 
     @Override
     protected void onDestroy() {

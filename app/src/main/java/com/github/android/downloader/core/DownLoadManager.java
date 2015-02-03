@@ -10,6 +10,9 @@ import com.github.android.downloader.net.HttpDownloadTask;
 import com.github.android.downloader.net.HttpTaskListener;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +32,24 @@ public class DownLoadManager {
 
     }
 
+    private Map<String,DownLoadControllerAsync> downloadMap=new ConcurrentHashMap<String, DownLoadControllerAsync>();
+    
+    public void stopDownLoadTask(String downUrl){
+        DownLoadControllerAsync async=downloadMap.get(downUrl);
+        if(async != null){
+            async.stopDownload();
+        }
+    }
+    
+    public void resumeDownLoadTask(String downUrl){
+        DownLoadControllerAsync async=downloadMap.get(downUrl);
+        List<DownloadInfo> dInfos=DownLoadControllerAsync.getDownInfos(downUrl);
+        if(async != null && dInfos != null){
+
+            async.restart();
+            submitDownloadTask(downUrl,dInfos.toArray(new DownloadInfo[dInfos.size()]),async);
+        }
+    }
 
     public void addDownLoadTask(final DownloadFile dFile,final IDownloadListener listener){
         
@@ -50,8 +71,7 @@ public class DownLoadManager {
                     }catch (Exception e){
                         Log.e(TAG,Log.getStackTraceString(e));
                     }
-                    
-                    
+
                     DownLoadControllerAsync async=new DownLoadControllerAsync(dFile,listener);
                     async.setCount(sz);
                     async.measureSpeed(true);
@@ -60,11 +80,32 @@ public class DownLoadManager {
                         listeners[i]=async.creatHttpTaskListener();
                         threadPoolExecutor.submit(new HttpDownloadTask(infos[i],listeners[i]));
                     }
+                    downloadMap.put(dFile.downUrl,async);
                 }
             }
         }));
     }
 
     
+    private void submitDownloadTask(String url, DownloadInfo[] infos,DownLoadControllerAsync async){
+        int sz=infos.length;
+        HttpTaskListener[] listeners=new HttpTaskListener[sz];
+        DownloadInfo info=null;
+        for(int i=0;i<sz;i++){
+            info=infos[i];
+            listeners[i]=async.creatHttpTaskListener();
+            changeRange(info);
+            threadPoolExecutor.submit(new HttpDownloadTask(info,listeners[i]));
+        }
+        downloadMap.put(url,async);
+    }
+    
+    private void changeRange(DownloadInfo info){
+        if(info.endByte == DownloadInfo.RANGE_NONE){
+            info.startByte+=info.realByte;
+        }
+        info.realByte=0;
+        info.start();
+    }
     
 }

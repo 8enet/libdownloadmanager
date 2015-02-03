@@ -1,4 +1,4 @@
-package com.github.android.downloader.core;
+package com.github.android.downloader.io;
 
 import com.github.android.downloader.bean.DownloadFile;
 import com.github.android.downloader.bean.DownloadInfo;

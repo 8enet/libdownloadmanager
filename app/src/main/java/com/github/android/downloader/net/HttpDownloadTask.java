@@ -54,6 +54,7 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
                 if (!retry && taskListener != null) {
                     taskListener.onStart(this.dInfo);
                 }
+                
                 URL url = new URL(dInfo.downloadFile.downUrl);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
@@ -79,6 +80,7 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
                         if (taskListener != null) {
                             retry=false;
                             taskListener.onInterruption(dInfo, true);
+                            break;
                         }
                     }
                 } else {
@@ -133,6 +135,10 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
                 dInfo.realByte+=len;
                 dInfo.addByte=len;
                 r=dInfo.isRunning();
+                if(!r){
+                    r=false;
+                    break;
+                }
                 if(taskListener != null){
                     taskListener.onDownloading(dInfo);
                 }

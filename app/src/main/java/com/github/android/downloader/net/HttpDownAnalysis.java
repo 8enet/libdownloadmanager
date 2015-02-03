@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.github.android.downloader.bean.DownloadFile;
 import com.github.android.downloader.bean.DownloadInfo;
-import com.github.android.downloader.core.FilePartAction;
+import com.github.android.downloader.io.FilePartAction;
 
 import java.net.HttpURLConnection;
 import java.net.URL;

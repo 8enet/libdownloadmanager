@@ -15,12 +15,11 @@ import java.lang.ref.SoftReference;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 /**
  * Created by zl on 2015/1/31.
@@ -44,7 +43,7 @@ public class DownLoadControllerAsync implements Cloneable{
     private AtomicBoolean statisStart = new AtomicBoolean(true);
     private CountDownLatch statisSuccess;
     private CountDownLatch clStop;
-    private List<DownloadInfo> mPauseInfos;
+    private List<DownloadInfo> mPauseInfos=new CopyOnWriteArrayList<DownloadInfo>();
     
     private SoftReference<MyHandler> handler;
     private volatile boolean running=true;
@@ -71,11 +70,14 @@ public class DownLoadControllerAsync implements Cloneable{
     
     public void stopDownload(){
         running=false;
-        if(!running){
-            clStop=new CountDownLatch(sizeTask);
+        clStop=new CountDownLatch(sizeTask);
+        Log.d(TAG,"stopDownload --->> ");
+        for(DownloadInfo dInfo:mPauseInfos){
+            dInfo.stop();
         }
-        if(mPauseInfos == null){
-            mPauseInfos=new CopyOnWriteArrayList<DownloadInfo>();
+        
+        if(mPauseInfos != null){
+            mPauseInfos.clear();
         }
     }
 
@@ -83,7 +85,8 @@ public class DownLoadControllerAsync implements Cloneable{
         running=true;
         this.countDownLatch = new CountDownLatch(sizeTask);
         this.statisSuccess = new CountDownLatch(sizeTask);
-
+        clStop=null;
+        Log.d(TAG,"restart  running "+running+"   sizeTask "+sizeTask);
     }
 
     private Handler getHandler() {
@@ -121,6 +124,7 @@ public class DownLoadControllerAsync implements Cloneable{
         return new HttpTaskListener() {
             @Override
             public void onStart(DownloadInfo downloadInfo) {
+                mPauseInfos.add(downloadInfo);
                 if (statisStart.get()) {
                     statisStart.set(false);
                     if (listener != null)
@@ -143,7 +147,7 @@ public class DownLoadControllerAsync implements Cloneable{
                     clStop.countDown();
                     mPauseInfos.add(downloadInfo);
                     if(clStop.getCount() == 0 && listener != null){
-                        clStop=null;
+                        
                         if(downInfosCache == null){
                             downInfosCache=new ConcurrentHashMap<String, List<DownloadInfo>>(5);
                         }
@@ -170,7 +174,6 @@ public class DownLoadControllerAsync implements Cloneable{
 
                     if(!running && downloadInfo.isRunning()){
                         downloadInfo.stop();
-                        Log.d(TAG,"  onDownloading stop ... "+downloadInfo);
                     }
 
                     double tsp=0;
@@ -252,4 +255,9 @@ public class DownLoadControllerAsync implements Cloneable{
         
     }
     
+    public static void removeDownInfos(String url){
+        if(downInfosCache == null){
+            downInfosCache.remove(url);
+        }
+    }
 }

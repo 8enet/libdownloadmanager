@@ -1,5 +1,7 @@
 package com.github.android.downloader.io;
 
+import android.util.Log;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -8,6 +10,8 @@ import java.nio.channels.FileChannel;
  * Created by zl on 15/2/2.
  */
 public class FileCoalition {
+
+    private static final String TAG="FileCoalition";
 
     private static final int BUFF_MAP_SIZE = 1024 * 256; //256k
 
@@ -60,17 +64,17 @@ public class FileCoalition {
                         buf.compact();
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e(TAG,Log.getStackTraceString(e));
                 } finally {
-                    closeQuietly(bufferedInputStream,fis);
+                    FileUtils.closeQuietly(bufferedInputStream, fis);
                 }
             }
             buf.flip();
             channel.write(buf);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG,Log.getStackTraceString(e));
         } finally {
-            closeQuietly(channel, fos);
+            FileUtils.closeQuietly(channel, fos);
         }
 
     }
@@ -102,31 +106,14 @@ public class FileCoalition {
                 }catch (Exception e){
 
                 }finally {
-                    closeQuietly(fis);
+                    FileUtils.closeQuietly(fis);
                 }
             }
         }catch (Exception e){
-            e.printStackTrace();
+            Log.e(TAG,Log.getStackTraceString(e));
         }finally {
-            closeQuietly(fos);
+            FileUtils.closeQuietly(fos);
         }
     }
 
-
-
-
-
-    private void closeQuietly(final Closeable... closeable) {
-        if (closeable != null) {
-            for (Closeable cls : closeable) {
-                try {
-                    if (cls != null)
-                        cls.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
 }

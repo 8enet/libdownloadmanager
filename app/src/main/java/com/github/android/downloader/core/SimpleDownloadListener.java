@@ -5,6 +5,8 @@ import android.os.RemoteException;
 
 import com.github.android.downloader.bean.DownloadInfo;
 
+import java.util.List;
+
 /**
  * Created by zl on 15/2/2.
  */
@@ -21,6 +23,16 @@ public class SimpleDownloadListener implements IDownloadListener {
 
     @Override
     public void onFail() throws RemoteException {
+
+    }
+
+    @Override
+    public void onPause(List<DownloadInfo> dInfos) throws RemoteException {
+
+    }
+
+    @Override
+    public void onResume() throws RemoteException {
 
     }
 

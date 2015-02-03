@@ -35,5 +35,20 @@ public class DownLoadServices extends Service {
                 mDownLoadManager.addDownLoadTask(dFile,listener);
             }
         }
+
+
+        @Override
+        public void stopDownLoadTask(String downUrl) throws RemoteException {
+            if(mDownLoadManager != null){
+                mDownLoadManager.stopDownLoadTask(downUrl);
+            }
+        }
+
+        @Override
+        public void resumeDownLoadTask(String downUrl) throws RemoteException {
+            if(mDownLoadManager != null){
+                mDownLoadManager.resumeDownLoadTask(downUrl);
+            }
+        }
     };
 }

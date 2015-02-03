@@ -7,5 +7,7 @@ import  com.github.android.downloader.core.IDownloadListener;
 interface IDownLoadServices {
    void addDownLoadTask(inout DownloadFile dFile,IDownloadListener listener);
    
-
+   void stopDownLoadTask(in String downUrl);
+   
+   void resumeDownLoadTask(in String downUrl);
 }

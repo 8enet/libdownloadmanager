@@ -12,8 +12,6 @@ import com.github.android.downloader.net.HttpTaskListener;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -28,9 +26,9 @@ public class DownLoadManager {
     private ThreadPoolExecutor threadPoolExecutor;
     private Context mContext;
     
-    DownLoadManager(Context mContext){
+    public DownLoadManager(Context mContext){
         this.mContext=mContext;
-        threadPoolExecutor=new ThreadPoolExecutor(10,10,5, TimeUnit.MINUTES,new LinkedBlockingQueue<Runnable>());
+        threadPoolExecutor=new ThreadPoolExecutor(5,10,5, TimeUnit.MINUTES,new LinkedBlockingQueue<Runnable>());
 
     }
 
@@ -41,15 +39,13 @@ public class DownLoadManager {
         if(async != null){
             async.stopDownload();
         }
-        
     }
     
     public void resumeDownLoadTask(String downUrl){
-
-        
         DownLoadControllerAsync async=downloadMap.get(downUrl);
         List<DownloadInfo> dInfos=DownLoadControllerAsync.getDownInfos(downUrl);
         if(async != null && dInfos != null){
+
             async.restart();
             submitDownloadTask(downUrl,dInfos.toArray(new DownloadInfo[dInfos.size()]),async);
         }
@@ -105,14 +101,11 @@ public class DownLoadManager {
     }
     
     private void changeRange(DownloadInfo info){
-        info.startByte+=info.realByte;
+        if(info.endByte == DownloadInfo.RANGE_NONE){
+            info.startByte+=info.realByte;
+        }
         info.realByte=0;
-        info.retry=3;
         info.start();
     }
     
-    
-    
-
 }
-

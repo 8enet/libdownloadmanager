@@ -152,7 +152,6 @@ public class MainActivity extends Activity implements OnClickListener{
                 break;
             case R.id.btn_stop:
                 stopD();
-                break;
             case R.id.btn_resume:
                 resumeD();
                 break;

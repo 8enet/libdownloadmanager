@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,20 +13,21 @@ import java.util.Map;
  */
 public class DownloadInfo implements Parcelable {
 
-    public static final int RANGE_NONE=-1;
-    
-    
-    public static final int DOWNLOAD_FAIL=-1;
+    public static final int RANGE_NONE = -1;
+
+
+    public static final int DOWNLOAD_FAIL = -1;
 
     public DownloadFile downloadFile;
-    
-    public DownloadInfo(){}
-    
-    public DownloadInfo(DownloadFile dFile,long startByte,long endByte){
-        this.downloadFile=dFile;
-        this.startByte=startByte;
-        this.endByte=endByte;
-        
+
+    public DownloadInfo() {
+    }
+
+    public DownloadInfo(DownloadFile dFile, long startByte, long endByte) {
+        this.downloadFile = dFile;
+        this.startByte = startByte;
+        this.endByte = endByte;
+
     }
 
     public long startByte;
@@ -33,22 +35,21 @@ public class DownloadInfo implements Parcelable {
     public long endByte;
 
     public long realByte;
-    
-    public int addByte;
 
-    public String tempFile;
+    public int addByte;
 
     public int status;
 
+    public String tempFiles;
 
-    
-    private boolean running=true;
-    
+    private boolean running = true;
+
     private Parcelable tag;
-    
 
-    public int retry=3;
-    
+
+    public int retry = 3;
+
+
     public Object getTag() {
         return tag;
     }
@@ -58,39 +59,39 @@ public class DownloadInfo implements Parcelable {
     }
 
 
-    public void stop(){
-        running=false;
+    public void stop() {
+        running = false;
     }
 
-    public boolean isRunning(){
+    public boolean isRunning() {
         return running;
     }
 
 
-    public void start(){
-        running=true;
-        
+    public void start() {
+        running = true;
+
     }
 
 
-    public Map<String,String> getHeards(){
-        return (downloadFile.requestParams != null?downloadFile.requestParams.getHeaders():null );
+    public Map<String, String> getHeards() {
+        return (downloadFile.requestParams != null ? downloadFile.requestParams.getHeaders() : null);
 
     }
-    
-    public boolean isSuccess(){
-        return endByte==getCurrentByte();
-        
+
+    public boolean isSuccess() {
+        return endByte == getCurrentByte();
+
     }
-    
-    
-    public long getCurrentByte(){
-        long c=startByte+realByte;
-        return c>0?c:0;
+
+
+    public long getCurrentByte() {
+        long c = startByte + realByte;
+        return c > 0 ? c : 0;
     }
-    
-    public void setRetry(int retry){
-        this.retry=retry;
+
+    public void setRetry(int retry) {
+        this.retry = retry;
     }
 
     @Override
@@ -109,7 +110,9 @@ public class DownloadInfo implements Parcelable {
         dest.writeByte(running ? (byte) 1 : (byte) 0);
         dest.writeParcelable(this.tag, flags);
         dest.writeInt(this.retry);
+        dest.writeString(tempFiles);
     }
+
 
     private DownloadInfo(Parcel in) {
         readFromParcel(in);
@@ -124,9 +127,8 @@ public class DownloadInfo implements Parcelable {
             return new DownloadInfo[size];
         }
     };
-    
-    public void readFromParcel(Parcel in){
 
+    public void readFromParcel(Parcel in) {
         this.downloadFile = in.readParcelable(DownloadFile.class.getClassLoader());
         this.startByte = in.readLong();
         this.endByte = in.readLong();
@@ -136,6 +138,7 @@ public class DownloadInfo implements Parcelable {
         this.running = in.readByte() != 0;
         this.tag = in.readParcelable(Object.class.getClassLoader());
         this.retry = in.readInt();
+        tempFiles = in.readString();
     }
 
 

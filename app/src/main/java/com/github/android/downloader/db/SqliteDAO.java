@@ -31,7 +31,7 @@ public class SqliteDAO {
 
     private int conflictType = 2;
 
-    public SqliteDAO(Context c, long userId) {
+    public SqliteDAO(Context c) {
         if (mySQLiteHelper == null) {
             String prefix = "";
             try {

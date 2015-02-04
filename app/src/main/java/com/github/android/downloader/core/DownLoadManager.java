@@ -10,6 +10,7 @@ import com.github.android.downloader.net.HttpDownloadTask;
 import com.github.android.downloader.net.HttpTaskListener;
 
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -56,7 +57,6 @@ public class DownLoadManager {
     }
 
     public void addDownLoadTask(final DownloadFile dFile,final IDownloadListener listener){
-        
         threadPoolExecutor.submit(new HttpDownAnalysis(dFile,new HttpDownAnalysis.OnDownloadAnalysis() {
             @Override
             public void onComplete(DownloadInfo[] infos) {

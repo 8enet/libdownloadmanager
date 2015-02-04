@@ -85,7 +85,6 @@ public class MainActivity extends Activity implements OnClickListener{
             
             dFile.requestParams= RequestParams.buildTestParams();
             Log.d(TAG," dFile.savePath -->  "+ dFile.savePath);
-            
 
             try {
                 mService.addDownLoadTask(dFile,new SimpleDownloadListener(){

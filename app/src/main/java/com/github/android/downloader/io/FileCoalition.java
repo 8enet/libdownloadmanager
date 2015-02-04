@@ -63,6 +63,7 @@ public class FileCoalition {
                         channel.write(buf);
                         buf.compact();
                     }
+                    file.delete();
                 } catch (Exception e) {
                     Log.e(TAG,Log.getStackTraceString(e));
                 } finally {

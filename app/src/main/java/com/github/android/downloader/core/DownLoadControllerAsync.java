@@ -8,11 +8,9 @@ import android.util.Log;
 
 import com.github.android.downloader.bean.DownloadFile;
 import com.github.android.downloader.bean.DownloadInfo;
-import com.github.android.downloader.io.FileCoalition;
 import com.github.android.downloader.net.HttpTaskListener;
 import com.github.android.downloader.utils.TrafficSpeed;
 
-import java.io.File;
 import java.lang.ref.SoftReference;
 import java.util.List;
 import java.util.Map;
@@ -26,17 +24,17 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by zl on 2015/1/31.
  */
-public class DownLoadControllerAsync implements Cloneable {
+public class DownLoadControllerAsync implements Cloneable{
 
-    private static final String TAG = "DownLoadControllerAsync";
+    private static final String TAG="DownLoadControllerAsync";
 
     public DownLoadControllerAsync(DownloadFile dFile, IDownloadListener listener) {
         this.dFile = dFile;
         this.listener = listener;
     }
 
-    public static Map<String, List<DownloadInfo>> downInfosCache = null;
-
+    public static Map<String,List<DownloadInfo>> downInfosCache=null;
+    
     private CountDownLatch countDownLatch;
     private DownloadFile dFile;
     private IDownloadListener listener;
@@ -45,50 +43,50 @@ public class DownLoadControllerAsync implements Cloneable {
     private AtomicBoolean statisStart = new AtomicBoolean(true);
     private CountDownLatch statisSuccess;
     private CountDownLatch clStop;
-    private List<DownloadInfo> mPauseInfos = new CopyOnWriteArrayList<DownloadInfo>();
-
+    private List<DownloadInfo> mPauseInfos=new CopyOnWriteArrayList<DownloadInfo>();
+    
     private SoftReference<MyHandler> handler;
-    private volatile boolean running = true;
+    private volatile boolean running=true;
+    
+    private volatile TrafficSpeed  trafficSpeed;
 
-    private volatile TrafficSpeed trafficSpeed;
+    private volatile boolean measureDownSpeed=false;
 
-    private volatile boolean measureDownSpeed = false;
-
-    private int sizeTask;
-
+    private  int sizeTask;
+    
     public void setCount(int c) {
-        sizeTask = c;
+        sizeTask=c;
         this.countDownLatch = new CountDownLatch(sizeTask);
         this.statisSuccess = new CountDownLatch(sizeTask);
     }
-
-    public void measureSpeed(boolean m) {
-        this.measureDownSpeed = m;
-        if (measureDownSpeed) {
-            trafficSpeed = new TrafficSpeed();
+    
+    public void measureSpeed(boolean m){
+        this.measureDownSpeed=m;
+        if(measureDownSpeed){
+            trafficSpeed=new TrafficSpeed();
         }
     }
-
-
-    public void stopDownload() {
-        running = false;
-        clStop = new CountDownLatch(sizeTask);
-        Log.d(TAG, "stopDownload --->> ");
-        for (DownloadInfo dInfo : mPauseInfos) {
+    
+    
+    public void stopDownload(){
+        running=false;
+        clStop=new CountDownLatch(sizeTask);
+        Log.d(TAG,"stopDownload --->> ");
+        for(DownloadInfo dInfo:mPauseInfos){
             dInfo.stop();
         }
-
-        if (mPauseInfos != null) {
+        
+        if(mPauseInfos != null){
             mPauseInfos.clear();
         }
     }
 
-    public void restart() {
-        running = true;
+    public void restart(){
+        running=true;
         this.countDownLatch = new CountDownLatch(sizeTask);
         this.statisSuccess = new CountDownLatch(sizeTask);
-        clStop = null;
-        Log.d(TAG, "restart  running " + running + "   sizeTask " + sizeTask);
+        clStop=null;
+        Log.d(TAG,"restart  running "+running+"   sizeTask "+sizeTask);
     }
 
     private Handler getHandler() {
@@ -145,20 +143,20 @@ public class DownLoadControllerAsync implements Cloneable {
 
             @Override
             public void onInterruption(DownloadInfo downloadInfo, boolean isNormal) throws Exception {
-                if (isNormal && clStop != null) {
+                if(isNormal && clStop != null){
                     clStop.countDown();
                     mPauseInfos.add(downloadInfo);
-                    if (clStop.getCount() == 0 && listener != null) {
-
-                        if (downInfosCache == null) {
-                            downInfosCache = new ConcurrentHashMap<String, List<DownloadInfo>>(5);
+                    if(clStop.getCount() == 0 && listener != null){
+                        
+                        if(downInfosCache == null){
+                            downInfosCache=new ConcurrentHashMap<String, List<DownloadInfo>>(5);
                         }
 
                         getHandler().post(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    downInfosCache.put(dFile.downUrl, mPauseInfos);
+                                    downInfosCache.put(dFile.downUrl,mPauseInfos);
                                     listener.onPause(mPauseInfos);
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
@@ -167,31 +165,31 @@ public class DownLoadControllerAsync implements Cloneable {
                         });
                     }
                 }
-
+                
             }
 
             @Override
             public void onDownloading(final DownloadInfo downloadInfo) {
                 if (downloadInfo != null) {
 
-                    if (!running && downloadInfo.isRunning()) {
+                    if(!running && downloadInfo.isRunning()){
                         downloadInfo.stop();
                     }
 
-                    double tsp = 0;
-                    if (measureDownSpeed && trafficSpeed != null) {
-                        tsp = trafficSpeed.getSpeed(current.addAndGet(downloadInfo.addByte));
-                    } else {
+                    double tsp=0;
+                    if(measureDownSpeed && trafficSpeed!= null){
+                        tsp=trafficSpeed.getSpeed(current.addAndGet(downloadInfo.addByte));
+                    }else {
                         current.addAndGet(downloadInfo.addByte);
                     }
-                    final double sp = tsp;
+                    final double sp=tsp;
                     if (listener != null && downloadInfo != null)
                         getHandler().post(new Runnable() {
                             @Override
                             public void run() {
-                                long c = current.get();
+                                long c=current.get();
                                 try {
-                                    listener.onDownloading(dFile.fileSize, c, (float) sp, ((float) c) / ((float) dFile.fileSize));
+                                    listener.onDownloading(dFile.fileSize, c, (float)sp, ((float)c)/((float) dFile.fileSize));
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
                                 }
@@ -207,19 +205,6 @@ public class DownLoadControllerAsync implements Cloneable {
 
             @Override
             public void onSuccess(DownloadInfo downloadInfo) {
-                Log.d(TAG, "onSuccess");
-                String[] split = downloadInfo.tempFiles.split(",");
-                File[] files = new File[split.length];
-                for (int i = 0; i < split.length; i++) {
-                    files[i] = new File(split[i]);
-                }
-                FileCoalition mCoalition = new FileCoalition(new File(downloadInfo.downloadFile.savePath), files);
-                try {
-                    mCoalition.merge();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
                 statisSuccess.countDown();
             }
 
@@ -241,7 +226,7 @@ public class DownLoadControllerAsync implements Cloneable {
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
                                 }
-                            } else {
+                            }else {
                                 try {
                                     listener.onFail();
                                 } catch (RemoteException e) {
@@ -261,17 +246,17 @@ public class DownLoadControllerAsync implements Cloneable {
 
     }
 
-
-    public static List<DownloadInfo> getDownInfos(String url) {
-        if (downInfosCache == null) {
+    
+    public static List<DownloadInfo> getDownInfos(String url){
+        if(downInfosCache == null){
             return null;
         }
         return downInfosCache.get(url);
-
+        
     }
-
-    public static void removeDownInfos(String url) {
-        if (downInfosCache == null) {
+    
+    public static void removeDownInfos(String url){
+        if(downInfosCache == null){
             downInfosCache.remove(url);
         }
     }

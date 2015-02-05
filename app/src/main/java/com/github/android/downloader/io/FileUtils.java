@@ -7,10 +7,6 @@ import java.io.Closeable;
  */
 public class FileUtils {
 
-    public static String getTempFileFormat(){
-        return System.currentTimeMillis()+".tmpdownload";
-    }
-
     public static void closeQuietly(final Closeable... closeable) {
         if (closeable != null) {
             for (Closeable cls : closeable) {

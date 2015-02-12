@@ -91,7 +91,7 @@ public class HttpDownAnalysis implements Runnable {
         public DownloadInfo[] partTask(DownloadFile dFile, int length) {
             int s = length / SEGM_REFERENCE+1;
             if(s == 1){
-                return new DownloadInfo[]{new DownloadInfo(dFile,0,DownloadInfo.RANGE_NONE)};
+                return new DownloadInfo[]{new DownloadInfo(dFile,0,length)};
             }
             if(s > MAX_SEGM_TASK){
                 s=MAX_SEGM_TASK;
@@ -102,7 +102,7 @@ public class HttpDownAnalysis implements Runnable {
             for(int i=1;i<s-1;i++){
                 infos[i]=new DownloadInfo(dFile,(p*i+i),(p*(i+1)+i));
             }
-            infos[s-1]=new DownloadInfo(dFile,(p*(s-1)+(s-1)),DownloadInfo.RANGE_NONE);
+            infos[s-1]=new DownloadInfo(dFile,(p*(s-1)+(s-1)),length);
             return infos;
         }
     }

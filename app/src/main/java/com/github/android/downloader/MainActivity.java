@@ -126,12 +126,18 @@ public class MainActivity extends Activity implements OnClickListener{
                     }
 
                     @Override
+                    public void onSuccess(DownloadFile dfInfo) throws RemoteException {
+                        super.onSuccess(dfInfo);
+                        showToast(dfInfo.downUrl);
+                    }
+
+                    @Override
                     public void onResume() throws RemoteException {
                         super.onResume();
                     }
 
                     @Override
-                    public void onFinsh(DownloadInfo dInfo) throws RemoteException {
+                    public void onFinsh(DownloadFile dInfo) throws RemoteException {
                         super.onFinsh(dInfo);
 
                         long time=System.currentTimeMillis()-st;
@@ -171,6 +177,7 @@ public class MainActivity extends Activity implements OnClickListener{
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+
 
     }
     

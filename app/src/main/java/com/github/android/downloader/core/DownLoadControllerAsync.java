@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by zl on 2015/1/31.
  */
-public class DownLoadControllerAsync implements Cloneable{
+ class DownLoadControllerAsync implements Cloneable{
 
     private static final String TAG="DownLoadControllerAsync";
 
@@ -67,6 +67,9 @@ public class DownLoadControllerAsync implements Cloneable{
         }
     }
     
+    public void attachListener(IDownloadListener listener){
+        this.listener=listener;
+    }
     
     public void stopDownload(){
         running=false;
@@ -207,6 +210,7 @@ public class DownLoadControllerAsync implements Cloneable{
             public void onSuccess(DownloadInfo downloadInfo) {
                 statisSuccess.countDown();
                 Log.d(TAG,"  onSuccess    --->> "+downloadInfo);
+                
             }
 
             @Override
@@ -218,12 +222,14 @@ public class DownLoadControllerAsync implements Cloneable{
             public void onFinish(final DownloadInfo downloadInfo) {
                 countDownLatch.countDown();
                 if (countDownLatch.getCount() == 0 && listener != null) {
+                    final boolean suc=statisSuccess.getCount() == 0;
+                    
                     getHandler().post(new Runnable() {
                         @Override
                         public void run() {
-                            if (statisSuccess.getCount() == 0) {
+                            if (suc) {
                                 try {
-                                    listener.onSuccess(downloadInfo);
+                                    listener.onSuccess(dFile);
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
                                 }
@@ -235,7 +241,7 @@ public class DownLoadControllerAsync implements Cloneable{
                                 }
                             }
                             try {
-                                listener.onFinsh(downloadInfo);
+                                listener.onFinsh(dFile);
                             } catch (RemoteException e) {
                                 e.printStackTrace();
                             }

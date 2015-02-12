@@ -162,12 +162,9 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
 
     private StringBuilder planRange() {
         StringBuilder rangs = new StringBuilder("bytes=");
-
-
         if (dInfo.startByte != DownloadInfo.RANGE_NONE) {
            rangs.append(dInfo.startByte);
         }
-
         rangs.append('-');
         if (dInfo.endByte != DownloadInfo.RANGE_NONE) {
             rangs.append(dInfo.endByte);

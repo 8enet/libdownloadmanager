@@ -45,8 +45,6 @@ public class DownLoadManager {
     }
     
     public void resumeDownLoadTask(String downUrl){
-
-        
         DownLoadControllerAsync async=downloadMap.get(downUrl);
         List<DownloadInfo> dInfos=DownLoadControllerAsync.getDownInfos(downUrl);
         if(async != null && dInfos != null){
@@ -90,6 +88,32 @@ public class DownLoadManager {
         }));
     }
 
+    public boolean hasDownloadRecord(String url){
+        return true;
+    }
+    
+    
+    public DownloadFile findByUrl(String url){
+        
+        return null;
+    }
+    
+    
+    public void registerListener(String url){
+        
+        
+    }
+    
+    public void unregisterListener(String url){
+        
+        
+    }
+    
+    
+    public List<DownloadFile> getDownloading(){
+        
+        return null;
+    }
     
     private void submitDownloadTask(String url, DownloadInfo[] infos,DownLoadControllerAsync async){
         int sz=infos.length;

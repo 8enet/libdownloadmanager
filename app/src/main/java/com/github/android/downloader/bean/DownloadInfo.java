@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public class DownloadInfo implements Parcelable {
 
+    private static final String TAG="DownloadInfo";
+    
     public static final int RANGE_NONE=-1;
     
     
@@ -79,13 +81,16 @@ public class DownloadInfo implements Parcelable {
     }
     
     public boolean isSuccess(){
-        return endByte==getCurrentByte();
-        
+        Log.d(TAG,"  isSuccess  -->  endByte: "+endByte+"     startByte+realByte: "+(startByte+realByte));
+        if(endByte == downloadFile.fileSize){
+            return endByte==getCurrentByte();
+        }
+        return endByte==(getCurrentByte()-1);
     }
     
     
     public long getCurrentByte(){
-        long c=startByte+realByte;
+        final long c=startByte+realByte;
         return c>0?c:0;
     }
     

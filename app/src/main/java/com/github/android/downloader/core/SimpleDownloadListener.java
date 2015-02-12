@@ -3,6 +3,7 @@ package com.github.android.downloader.core;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.github.android.downloader.bean.DownloadFile;
 import com.github.android.downloader.bean.DownloadInfo;
 
 import java.util.List;
@@ -37,17 +38,17 @@ public class SimpleDownloadListener implements IDownloadListener {
     }
 
     @Override
-    public void onSuccess(DownloadInfo dInfo) throws RemoteException {
+    public void onSuccess(DownloadFile dfInfo) throws RemoteException {
 
     }
 
     @Override
-    public void onCancel(DownloadInfo dInfo) throws RemoteException {
+    public void onCancel(DownloadInfo dfInfo) throws RemoteException {
 
     }
 
     @Override
-    public void onFinsh(DownloadInfo dInfo) throws RemoteException {
+    public void onFinsh(DownloadFile dfInfo) throws RemoteException {
 
     }
 

@@ -2,6 +2,7 @@
 package com.github.android.downloader.core;
 
 import com.github.android.downloader.bean.DownloadInfo;
+import  com.github.android.downloader.bean.DownloadFile;
 
 interface IDownloadListener {
         void onStart();
@@ -14,9 +15,9 @@ interface IDownloadListener {
         
         void onResume();
 
-        void onSuccess(out DownloadInfo dInfo);
+        void onSuccess(out DownloadFile dInfo);
 
         void onCancel(out DownloadInfo dInfo);
 
-        void onFinsh(out DownloadInfo dInfo);
+        void onFinsh(out DownloadFile dInfo);
 }

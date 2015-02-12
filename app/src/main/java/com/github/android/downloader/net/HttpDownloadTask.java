@@ -1,6 +1,8 @@
 package com.github.android.downloader.net;
 
 
+import android.os.*;
+import android.os.Process;
 import android.util.Log;
 
 import com.github.android.downloader.bean.DownloadInfo;
@@ -45,6 +47,7 @@ public class HttpDownloadTask implements Callable<DownloadInfo> {
 
     @Override
     public DownloadInfo call() throws Exception {
+        android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         boolean retry = false;
         boolean fail = false;
         do {

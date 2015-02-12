@@ -3,6 +3,8 @@ package com.github.android.downloader.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.File;
+
 
 public class DownloadFile implements Parcelable {
     public String downUrl;

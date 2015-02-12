@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -76,6 +77,7 @@ public class MainActivity extends Activity implements OnClickListener{
 
     long st;
     private void download(){
+
 
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
             DownloadFile dFile=new DownloadFile();

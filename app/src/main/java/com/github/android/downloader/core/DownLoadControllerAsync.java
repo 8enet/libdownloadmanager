@@ -206,11 +206,12 @@ public class DownLoadControllerAsync implements Cloneable{
             @Override
             public void onSuccess(DownloadInfo downloadInfo) {
                 statisSuccess.countDown();
+                Log.d(TAG,"  onSuccess    --->> "+downloadInfo);
             }
 
             @Override
             public void onFail(DownloadInfo downloadInfo, int error) {
-
+                Log.d(TAG,"  onFail    --->> "+downloadInfo);
             }
 
             @Override
